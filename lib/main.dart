@@ -128,10 +128,17 @@ class _GalleryScreenState extends State<GalleryScreen> {
   }
 }
 
-class PhotoDetailScreen extends StatelessWidget {
+class PhotoDetailScreen extends StatefulWidget {
   final String photoUrl;
 
   PhotoDetailScreen({required this.photoUrl});
+
+  @override
+  _PhotoDetailScreenState createState() => _PhotoDetailScreenState();
+}
+
+class _PhotoDetailScreenState extends State<PhotoDetailScreen> {
+  bool _showButton = true;
 
   @override
   Widget build(BuildContext context) {
@@ -141,11 +148,38 @@ class PhotoDetailScreen extends StatelessWidget {
         iconTheme: IconThemeData(color: Colors.white),
       ),
       backgroundColor: Colors.black,
-      body: Center(
-        child: PhotoView(
-          imageProvider: NetworkImage(photoUrl),
-          backgroundDecoration: BoxDecoration(color: Colors.black),
-        ),
+      body: Stack(
+        children: [
+          GestureDetector(
+            onTap: () {
+              // Toggle the visibility of the floating button when tapped.
+              setState(() {
+                _showButton = !_showButton;
+              });
+            },
+            child: PhotoView(
+              imageProvider: NetworkImage(widget.photoUrl),
+              backgroundDecoration: BoxDecoration(color: Colors.black),
+            ),
+          ),
+          if (_showButton)
+            Positioned(
+              bottom: 16,
+              right: 16,
+              child: FloatingActionButton(
+                onPressed: () async {
+                  // Logic to save/download the photo
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Photo saved to your device!'),
+                    ),
+                  );
+                },
+                child: Icon(Icons.download),
+                backgroundColor: Colors.blue,
+              ),
+            ),
+        ],
       ),
     );
   }
