@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:photo_view/photo_view.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -45,7 +46,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
     });
 
     final url = Uri.parse(
-        'https://api.unsplash.com/photos?page=$_page&client_id=YOUR_ACCESS_KEY');
+        'https://api.unsplash.com/photos?page=$_page&client_id=tnVeIKl1E9DsgeiWBNr79RCC41lU4BgDLZO_ufxKJIk');
     try {
       final response = await http.get(url);
       if (response.statusCode == 200) {
@@ -75,6 +76,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.blueAccent,
+        elevation: 5,
       ),
       body: NotificationListener<ScrollNotification>(
         onNotification: (scrollInfo) {
@@ -94,11 +96,55 @@ class _GalleryScreenState extends State<GalleryScreen> {
           itemCount: _photos.length,
           itemBuilder: (context, index) {
             final photo = _photos[index];
-            return Image.network(
-              photo['urls']['small'],
-              fit: BoxFit.cover,
+            return GestureDetector(
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      PhotoDetailScreen(photoUrl: photo['urls']['full']),
+                ),
+              ),
+              child: Hero(
+                tag: photo['id'],
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: Image.network(
+                    photo['urls']['small'],
+                    fit: BoxFit.cover,
+                    loadingBuilder: (context, child, progress) {
+                      if (progress == null) return child;
+                      return Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    },
+                  ),
+                ),
+              ),
             );
           },
+        ),
+      ),
+    );
+  }
+}
+
+class PhotoDetailScreen extends StatelessWidget {
+  final String photoUrl;
+
+  PhotoDetailScreen({required this.photoUrl});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        iconTheme: IconThemeData(color: Colors.white),
+      ),
+      backgroundColor: Colors.black,
+      body: Center(
+        child: PhotoView(
+          imageProvider: NetworkImage(photoUrl),
+          backgroundDecoration: BoxDecoration(color: Colors.black),
         ),
       ),
     );
