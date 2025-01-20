@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:share/share.dart';
 
 void main() {
   runApp(MyApp());
@@ -138,7 +139,7 @@ class PhotoDetailScreen extends StatefulWidget {
 }
 
 class _PhotoDetailScreenState extends State<PhotoDetailScreen> {
-  bool _showButton = true;
+  bool _showButtons = true;
 
   @override
   Widget build(BuildContext context) {
@@ -152,9 +153,9 @@ class _PhotoDetailScreenState extends State<PhotoDetailScreen> {
         children: [
           GestureDetector(
             onTap: () {
-              // Toggle the visibility of the floating button when tapped.
+              // Toggle the visibility of the floating buttons when tapped.
               setState(() {
-                _showButton = !_showButton;
+                _showButtons = !_showButtons;
               });
             },
             child: PhotoView(
@@ -162,12 +163,12 @@ class _PhotoDetailScreenState extends State<PhotoDetailScreen> {
               backgroundDecoration: BoxDecoration(color: Colors.black),
             ),
           ),
-          if (_showButton)
+          if (_showButtons)
             Positioned(
               bottom: 16,
-              right: 16,
+              left: 16,
               child: FloatingActionButton(
-                onPressed: () async {
+                onPressed: () {
                   // Logic to save/download the photo
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
@@ -177,6 +178,19 @@ class _PhotoDetailScreenState extends State<PhotoDetailScreen> {
                 },
                 child: Icon(Icons.download),
                 backgroundColor: Colors.blue,
+              ),
+            ),
+          if (_showButtons)
+            Positioned(
+              bottom: 16,
+              right: 16,
+              child: FloatingActionButton(
+                onPressed: () {
+                  // Logic to share the photo
+                  Share.share(widget.photoUrl, subject: 'Check out this photo!');
+                },
+                child: Icon(Icons.share),
+                backgroundColor: Colors.green,
               ),
             ),
         ],
