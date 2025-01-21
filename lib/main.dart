@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
       title: 'Photo Gallery',
       theme: ThemeData(
         primarySwatch: Colors.blue,
-        scaffoldBackgroundColor: Colors.grey[100],
+        scaffoldBackgroundColor: Colors.grey[900], // Dark background
       ),
       home: GalleryScreen(),
     );
@@ -108,12 +108,13 @@ class _GalleryScreenState extends State<GalleryScreen> {
           'Photo Gallery',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: Colors.blueAccent,
+        backgroundColor: Colors.black, // Black background for app bar
         elevation: 5,
         actions: [
           IconButton(
             icon: Icon(Icons.share),
             onPressed: _shareApp,
+            color: Colors.white, // White icon color for contrast
           ),
         ],
       ),
@@ -135,7 +136,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
                     child: Center(
                       child: Text(
                         'No photos found!',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey),
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
                       ),
                     ),
                   ),
@@ -163,16 +164,28 @@ class _GalleryScreenState extends State<GalleryScreen> {
                         child: Hero(
                           tag: photo['id'],
                           child: ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: Image.network(
-                              photo['urls']['small'],
-                              fit: BoxFit.cover,
-                              loadingBuilder: (context, child, progress) {
-                                if (progress == null) return child;
-                                return Center(
-                                  child: CircularProgressIndicator(),
-                                );
-                              },
+                            borderRadius: BorderRadius.circular(15),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(15),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.5), // Dark shadow for sleek look
+                                    blurRadius: 6,
+                                    spreadRadius: 2,
+                                  ),
+                                ],
+                              ),
+                              child: Image.network(
+                                photo['urls']['small'],
+                                fit: BoxFit.cover,
+                                loadingBuilder: (context, child, progress) {
+                                  if (progress == null) return child;
+                                  return Center(
+                                    child: CircularProgressIndicator(),
+                                  );
+                                },
+                              ),
                             ),
                           ),
                         ),
@@ -190,22 +203,24 @@ class _GalleryScreenState extends State<GalleryScreen> {
         ),
       ),
       bottomNavigationBar: BottomAppBar(
+        color: Colors.black, // Black background for the bottom bar
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: AnimatedContainer(
             duration: Duration(milliseconds: 300),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(30),
-              color: Colors.blue[50],
+              color: Colors.grey[850], // Dark search bar background
             ),
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
                 hintText: 'Search photos...',
+                hintStyle: TextStyle(color: Colors.white), // White hint text
                 border: InputBorder.none,
-                prefixIcon: Icon(Icons.search),
+                prefixIcon: Icon(Icons.search, color: Colors.white), // White search icon
                 filled: true,
-                fillColor: Colors.white,
+                fillColor: Colors.grey[850],
               ),
             ),
           ),
@@ -231,7 +246,7 @@ class _PhotoDetailScreenState extends State<PhotoDetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.black,
+        backgroundColor: Colors.black, // Black app bar for consistency
         iconTheme: IconThemeData(color: Colors.white),
       ),
       backgroundColor: Colors.black,
@@ -265,7 +280,7 @@ class _PhotoDetailScreenState extends State<PhotoDetailScreen> {
                       );
                     },
                     child: Icon(Icons.download),
-                    backgroundColor: Colors.blue,
+                    backgroundColor: Colors.blue, // Blue color for the download button
                   ),
                   SizedBox(height: 8),
                   FloatingActionButton(
@@ -285,7 +300,7 @@ class _PhotoDetailScreenState extends State<PhotoDetailScreen> {
                       }
                     },
                     child: Icon(Icons.share),
-                    backgroundColor: Colors.green,
+                    backgroundColor: Colors.green, // Green color for the share button
                   ),
                 ],
               ),
