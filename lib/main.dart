@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:share/share.dart';
+import 'package:share_plus/share_plus.dart';
 
 void main() {
   runApp(MyApp());
@@ -139,7 +139,7 @@ class PhotoDetailScreen extends StatefulWidget {
 }
 
 class _PhotoDetailScreenState extends State<PhotoDetailScreen> {
-  bool _showButtons = true;
+  bool _showButton = true;
 
   @override
   Widget build(BuildContext context) {
@@ -155,7 +155,7 @@ class _PhotoDetailScreenState extends State<PhotoDetailScreen> {
             onTap: () {
               // Toggle the visibility of the floating buttons when tapped.
               setState(() {
-                _showButtons = !_showButtons;
+                _showButton = !_showButton;
               });
             },
             child: PhotoView(
@@ -163,34 +163,48 @@ class _PhotoDetailScreenState extends State<PhotoDetailScreen> {
               backgroundDecoration: BoxDecoration(color: Colors.black),
             ),
           ),
-          if (_showButtons)
-            Positioned(
-              bottom: 16,
-              left: 16,
-              child: FloatingActionButton(
-                onPressed: () {
-                  // Logic to save/download the photo
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Photo saved to your device!'),
-                    ),
-                  );
-                },
-                child: Icon(Icons.download),
-                backgroundColor: Colors.blue,
-              ),
-            ),
-          if (_showButtons)
+          if (_showButton)
             Positioned(
               bottom: 16,
               right: 16,
-              child: FloatingActionButton(
-                onPressed: () {
-                  // Logic to share the photo
-                  Share.share(widget.photoUrl, subject: 'Check out this photo!');
-                },
-                child: Icon(Icons.share),
-                backgroundColor: Colors.green,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  FloatingActionButton(
+                    heroTag: 'download',
+                    onPressed: () async {
+                      // Logic to save/download the photo
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Photo saved to your device!'),
+                        ),
+                      );
+                    },
+                    child: Icon(Icons.download),
+                    backgroundColor: Colors.blue,
+                  ),
+                  SizedBox(height: 8),
+                  FloatingActionButton(
+                    heroTag: 'share',
+                    onPressed: () {
+                      // Share the photo URL
+                      if (widget.photoUrl.isNotEmpty) {
+                        Share.share(
+                          widget.photoUrl,
+                          subject: 'Check out this photo!',
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Error: Unable to share this photo'),
+                          ),
+                        );
+                      }
+                    },
+                    child: Icon(Icons.share),
+                    backgroundColor: Colors.green,
+                  ),
+                ],
               ),
             ),
         ],
