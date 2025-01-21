@@ -88,8 +88,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
       _filteredPhotos = _photos
           .where((photo) => photo['alt_description']
           ?.toLowerCase()
-          ?.contains(query) ??
-          false)
+          ?.contains(query) ?? false)
           .toList();
     });
   }
@@ -125,59 +124,89 @@ class _GalleryScreenState extends State<GalleryScreen> {
           }
           return true;
         },
-        child: GridView.builder(
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 8,
-            mainAxisSpacing: 8,
-            childAspectRatio: 1,
-          ),
-          padding: const EdgeInsets.all(10),
-          itemCount: _filteredPhotos.length,
-          itemBuilder: (context, index) {
-            final photo = _filteredPhotos[index];
-            return GestureDetector(
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      PhotoDetailScreen(photoUrl: photo['urls']['full']),
-                ),
-              ),
-              child: Hero(
-                tag: photo['id'],
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.network(
-                    photo['urls']['small'],
-                    fit: BoxFit.cover,
-                    loadingBuilder: (context, child, progress) {
-                      if (progress == null) return child;
-                      return Center(
-                        child: CircularProgressIndicator(),
+        child: Stack(
+          children: [
+            Column(
+              children: [
+                // Display message when no photos match the search
+                if (_filteredPhotos.isEmpty && _searchController.text.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Center(
+                      child: Text(
+                        'No photos found!',
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.grey),
+                      ),
+                    ),
+                  ),
+                // Photo Grid
+                Expanded(
+                  child: GridView.builder(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 8,
+                      mainAxisSpacing: 8,
+                      childAspectRatio: 1,
+                    ),
+                    padding: const EdgeInsets.all(10),
+                    itemCount: _filteredPhotos.length,
+                    itemBuilder: (context, index) {
+                      final photo = _filteredPhotos[index];
+                      return GestureDetector(
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                PhotoDetailScreen(photoUrl: photo['urls']['full']),
+                          ),
+                        ),
+                        child: Hero(
+                          tag: photo['id'],
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: Image.network(
+                              photo['urls']['small'],
+                              fit: BoxFit.cover,
+                              loadingBuilder: (context, child, progress) {
+                                if (progress == null) return child;
+                                return Center(
+                                  child: CircularProgressIndicator(),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
                       );
                     },
                   ),
                 ),
+              ],
+            ),
+            if (_isLoading)
+              Center(
+                child: CircularProgressIndicator(),
               ),
-            );
-          },
+          ],
         ),
       ),
       bottomNavigationBar: BottomAppBar(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: TextField(
-            controller: _searchController,
-            decoration: InputDecoration(
-              hintText: 'Search photos...',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide(color: Colors.blue),
+          child: AnimatedContainer(
+            duration: Duration(milliseconds: 300),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(30),
+              color: Colors.blue[50],
+            ),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: 'Search photos...',
+                border: InputBorder.none,
+                prefixIcon: Icon(Icons.search),
+                filled: true,
+                fillColor: Colors.white,
               ),
-              prefixIcon: Icon(Icons.search),
-              filled: true,
-              fillColor: Colors.white,
             ),
           ),
         ),
