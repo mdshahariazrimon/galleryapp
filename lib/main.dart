@@ -30,13 +30,26 @@ class GalleryScreen extends StatefulWidget {
 
 class _GalleryScreenState extends State<GalleryScreen> {
   List<dynamic> _photos = [];
+  List<dynamic> _filteredPhotos = [];
   int _page = 1;
   bool _isLoading = false;
+  TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _fetchPhotos();
+
+    // Listen to changes in the search bar
+    _searchController.addListener(() {
+      _filterPhotos();
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   Future<void> _fetchPhotos() async {
@@ -54,6 +67,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
         final List<dynamic> fetchedPhotos = json.decode(response.body);
         setState(() {
           _photos.addAll(fetchedPhotos);
+          _filteredPhotos = _photos; // Initially, all photos are visible
           _page++;
         });
       } else {
@@ -68,16 +82,46 @@ class _GalleryScreenState extends State<GalleryScreen> {
     }
   }
 
+  void _filterPhotos() {
+    final query = _searchController.text.toLowerCase();
+    setState(() {
+      _filteredPhotos = _photos
+          .where((photo) => photo['alt_description']
+          ?.toLowerCase()
+          ?.contains(query) ??
+          false)
+          .toList();
+    });
+  }
+
+  void _shareApp() {
+    Share.share(
+      'Check out this amazing photo gallery app!\nhttps://example.com',
+      subject: 'Photo Gallery App',
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Photo Gallery',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        title: TextField(
+          controller: _searchController,
+          decoration: InputDecoration(
+            hintText: 'Search photos...',
+            border: InputBorder.none,
+            hintStyle: TextStyle(color: Colors.white70),
+          ),
+          style: TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.blueAccent,
         elevation: 5,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.share),
+            onPressed: _shareApp,
+          ),
+        ],
       ),
       body: NotificationListener<ScrollNotification>(
         onNotification: (scrollInfo) {
@@ -94,9 +138,9 @@ class _GalleryScreenState extends State<GalleryScreen> {
             childAspectRatio: 1,
           ),
           padding: const EdgeInsets.all(10),
-          itemCount: _photos.length,
+          itemCount: _filteredPhotos.length,
           itemBuilder: (context, index) {
-            final photo = _photos[index];
+            final photo = _filteredPhotos[index];
             return GestureDetector(
               onTap: () => Navigator.push(
                 context,
@@ -153,7 +197,6 @@ class _PhotoDetailScreenState extends State<PhotoDetailScreen> {
         children: [
           GestureDetector(
             onTap: () {
-              // Toggle the visibility of the floating buttons when tapped.
               setState(() {
                 _showButton = !_showButton;
               });
@@ -173,7 +216,6 @@ class _PhotoDetailScreenState extends State<PhotoDetailScreen> {
                   FloatingActionButton(
                     heroTag: 'download',
                     onPressed: () async {
-                      // Logic to save/download the photo
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text('Photo saved to your device!'),
@@ -187,7 +229,6 @@ class _PhotoDetailScreenState extends State<PhotoDetailScreen> {
                   FloatingActionButton(
                     heroTag: 'share',
                     onPressed: () {
-                      // Share the photo URL
                       if (widget.photoUrl.isNotEmpty) {
                         Share.share(
                           widget.photoUrl,
