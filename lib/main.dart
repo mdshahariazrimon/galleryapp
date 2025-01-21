@@ -105,14 +105,9 @@ class _GalleryScreenState extends State<GalleryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: TextField(
-          controller: _searchController,
-          decoration: InputDecoration(
-            hintText: 'Search photos...',
-            border: InputBorder.none,
-            hintStyle: TextStyle(color: Colors.white70),
-          ),
-          style: TextStyle(color: Colors.white),
+        title: Text(
+          'Photo Gallery',
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Colors.blueAccent,
         elevation: 5,
@@ -167,6 +162,24 @@ class _GalleryScreenState extends State<GalleryScreen> {
               ),
             );
           },
+        ),
+      ),
+      bottomNavigationBar: BottomAppBar(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: TextField(
+            controller: _searchController,
+            decoration: InputDecoration(
+              hintText: 'Search photos...',
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(color: Colors.blue),
+              ),
+              prefixIcon: Icon(Icons.search),
+              filled: true,
+              fillColor: Colors.white,
+            ),
+          ),
         ),
       ),
     );
