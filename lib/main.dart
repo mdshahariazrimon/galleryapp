@@ -5,35 +5,43 @@ import 'dart:convert';
 import 'package:share_plus/share_plus.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Photo Gallery',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        scaffoldBackgroundColor: Colors.grey[900], // Dark background
+      theme: ThemeData.dark().copyWith(
+        scaffoldBackgroundColor: Colors.black,
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.black,
+          iconTheme: IconThemeData(color: Colors.white),
+          titleTextStyle: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        ),
       ),
-      home: GalleryScreen(),
+      home: const GalleryScreen(),
     );
   }
 }
 
 class GalleryScreen extends StatefulWidget {
+  const GalleryScreen({super.key});
+
   @override
   _GalleryScreenState createState() => _GalleryScreenState();
 }
 
 class _GalleryScreenState extends State<GalleryScreen> {
-  List<dynamic> _photos = [];
+  final List<dynamic> _photos = [];
   List<dynamic> _filteredPhotos = [];
   int _page = 1;
   bool _isLoading = false;
-  TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -104,17 +112,11 @@ class _GalleryScreenState extends State<GalleryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Photo Gallery',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: Colors.black, // Black background for app bar
-        elevation: 5,
+        title: const Text('Photo Gallery'),
         actions: [
           IconButton(
-            icon: Icon(Icons.share),
+            icon: const Icon(Icons.share),
             onPressed: _shareApp,
-            color: Colors.white, // White icon color for contrast
           ),
         ],
       ),
@@ -127,100 +129,70 @@ class _GalleryScreenState extends State<GalleryScreen> {
         },
         child: Stack(
           children: [
-            Column(
-              children: [
-                // Display message when no photos match the search
-                if (_filteredPhotos.isEmpty && _searchController.text.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Center(
-                      child: Text(
-                        'No photos found!',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+            GridView.builder(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 8,
+                mainAxisSpacing: 8,
+                childAspectRatio: 1,
+              ),
+              padding: const EdgeInsets.all(10),
+              itemCount: _filteredPhotos.length,
+              itemBuilder: (context, index) {
+                final photo = _filteredPhotos[index];
+                return GestureDetector(
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          PhotoDetailScreen(photoUrl: photo['urls']['full']),
+                    ),
+                  ),
+                  child: Hero(
+                    tag: photo['id'],
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Image.network(
+                        photo['urls']['small'],
+                        fit: BoxFit.cover,
+                        loadingBuilder: (context, child, progress) {
+                          if (progress == null) return child;
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        },
                       ),
                     ),
                   ),
-                // Photo Grid
-                Expanded(
-                  child: GridView.builder(
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 8,
-                      mainAxisSpacing: 8,
-                      childAspectRatio: 1,
-                    ),
-                    padding: const EdgeInsets.all(10),
-                    itemCount: _filteredPhotos.length,
-                    itemBuilder: (context, index) {
-                      final photo = _filteredPhotos[index];
-                      return GestureDetector(
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                PhotoDetailScreen(photoUrl: photo['urls']['full']),
-                          ),
-                        ),
-                        child: Hero(
-                          tag: photo['id'],
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(15),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(15),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.5), // Dark shadow for sleek look
-                                    blurRadius: 6,
-                                    spreadRadius: 2,
-                                  ),
-                                ],
-                              ),
-                              child: Image.network(
-                                photo['urls']['small'],
-                                fit: BoxFit.cover,
-                                loadingBuilder: (context, child, progress) {
-                                  if (progress == null) return child;
-                                  return Center(
-                                    child: CircularProgressIndicator(),
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
+                );
+              },
             ),
             if (_isLoading)
-              Center(
+              const Center(
                 child: CircularProgressIndicator(),
               ),
           ],
         ),
       ),
       bottomNavigationBar: BottomAppBar(
-        color: Colors.black, // Black background for the bottom bar
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: AnimatedContainer(
-            duration: Duration(milliseconds: 300),
+            duration: const Duration(milliseconds: 300),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(30),
-              color: Colors.grey[850], // Dark search bar background
+              color: Colors.grey[900], // Black theme for search bar
             ),
             child: TextField(
               controller: _searchController,
-              decoration: InputDecoration(
+              style: const TextStyle(color: Colors.white),
+              decoration: const InputDecoration(
                 hintText: 'Search photos...',
-                hintStyle: TextStyle(color: Colors.white), // White hint text
+                hintStyle: TextStyle(color: Colors.grey),
                 border: InputBorder.none,
-                prefixIcon: Icon(Icons.search, color: Colors.white), // White search icon
+                prefixIcon: Icon(Icons.search, color: Colors.white),
                 filled: true,
-                fillColor: Colors.grey[850],
+                fillColor: Colors.black,
               ),
             ),
           ),
@@ -233,7 +205,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
 class PhotoDetailScreen extends StatefulWidget {
   final String photoUrl;
 
-  PhotoDetailScreen({required this.photoUrl});
+  const PhotoDetailScreen({super.key, required this.photoUrl});
 
   @override
   _PhotoDetailScreenState createState() => _PhotoDetailScreenState();
@@ -245,10 +217,7 @@ class _PhotoDetailScreenState extends State<PhotoDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.black, // Black app bar for consistency
-        iconTheme: IconThemeData(color: Colors.white),
-      ),
+      appBar: AppBar(),
       backgroundColor: Colors.black,
       body: Stack(
         children: [
@@ -260,7 +229,7 @@ class _PhotoDetailScreenState extends State<PhotoDetailScreen> {
             },
             child: PhotoView(
               imageProvider: NetworkImage(widget.photoUrl),
-              backgroundDecoration: BoxDecoration(color: Colors.black),
+              backgroundDecoration: const BoxDecoration(color: Colors.black),
             ),
           ),
           if (_showButton)
@@ -274,15 +243,15 @@ class _PhotoDetailScreenState extends State<PhotoDetailScreen> {
                     heroTag: 'download',
                     onPressed: () async {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
+                        const SnackBar(
                           content: Text('Photo saved to your device!'),
                         ),
                       );
                     },
-                    child: Icon(Icons.download),
-                    backgroundColor: Colors.blue, // Blue color for the download button
+                    backgroundColor: Colors.blue, // Retain blue for Save
+                    child: const Icon(Icons.download),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   FloatingActionButton(
                     heroTag: 'share',
                     onPressed: () {
@@ -293,14 +262,14 @@ class _PhotoDetailScreenState extends State<PhotoDetailScreen> {
                         );
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
+                          const SnackBar(
                             content: Text('Error: Unable to share this photo'),
                           ),
                         );
                       }
                     },
-                    child: Icon(Icons.share),
-                    backgroundColor: Colors.green, // Green color for the share button
+                    backgroundColor: Colors.green, // Retain green for Share
+                    child: const Icon(Icons.share),
                   ),
                 ],
               ),
