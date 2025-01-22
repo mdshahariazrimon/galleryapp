@@ -12,6 +12,7 @@ dependencies:
   photo_view:
   http:
   share_plus:
+  mockito:
 
 dev_dependencies:
   flutter_test:
